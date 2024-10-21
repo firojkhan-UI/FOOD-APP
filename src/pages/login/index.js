@@ -1,156 +1,106 @@
-import React, { useState } from 'react';
-import styled from "styled-components";
-import foodBgImg from "../../../public/food_img.jpeg"
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { useState } from "react";
 
+function Login() {
+  const router = useRouter();
+  const [credentials, setCredentials] = useState({ email: "", password: "" });
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-const LoginContainer = styled.div`
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: url('/food_img.jpeg') center/cover no-repeat;
-`;
+    const response = await fetch("api/userLogin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: credentials.email,
+        password: credentials.password,
+      }),
+    });
+    const res = await response.json();
 
-const LoginBox = styled.div`
-  background-color: white;
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0px 10px 30px rgba(0, 0, 0, 0.1);
-  width: 350px;
-  text-align: center;
-`;
+    if (res.success) {
+      localStorage.setItem("token", res.authToken);
+      localStorage.setItem("userEmail", credentials.email);
+      localStorage.setItem("isAdmin", await JSON.parse(res.isAdmin));
 
-const Title = styled.h2`
-  margin-bottom: 20px;
-  color: #333;
-`;
-
-const InputGroup = styled.div`
-  margin-bottom: 15px;
-  text-align: left;
-`;
-
-const Label = styled.label`
-  display: block;
-  margin-bottom: 5px;
-  color: #333;
-`;
-
-const Input = styled.input`
-  width: 100%;
-  padding: 10px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-`;
-
-const ForgotPassword = styled.div`
-  text-align: right;
-  margin-bottom: 20px;
-`;
-
-const ForgotPasswordLink = styled.a`
-  color: #666;
-  text-decoration: none;
-`;
-
-const LoginButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, #6b73ff, #000dff);
-  border: none;
-  border-radius: 5px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  margin-bottom: 20px;
-`;
-
-const SocialLogin = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-`;
-
-const SocialButton = styled.button`
-  flex: 1;
-  margin: 0 5px;
-  padding: 10px;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-
-  &.facebook {
-    background-color: #3b5998;
-  }
-  
-  &.twitter {
-    background-color: #1da1f2;
-  }
-  
-  &.google {
-    background-color: #db4437;
-  }
-
-  &:hover {
-    opacity: 0.8;
-  }
-`;
-
-const SignupLink = styled.a`
-  color: #333;
-`;
-
-const Login = () => {
-  const [credential, setCredential] = useState({username: "", password: ""})
-  const [data, setData] = useState("")
-
-  const handleCredential = (e) => {
-    // e.preventDefault()
-    setCredential({...credential,[e.target.id]:e.target.value})
-  }
-
-  const handleSubmit = (e) =>{
-    e.preventDefault()
-    setData(credential)
-    setCredential({...credential,username: "", password:""})
-  }
-
-  console.log(data,"cred::")
-
+      router.push("/");
+      //logic for signup
+    } else {
+      alert(res.error);
+    }
+    //logic for login
+  };
+  const handleChange = (e) => {
+    setCredentials({ ...credentials, [e.target.name]: e.target.value });
+  };
   return (
-    <LoginContainer image={foodBgImg}>
-      <LoginBox>
-        <Title>Login</Title>
-        <form onSubmit={handleSubmit}>
-          <InputGroup>
-            <Label htmlFor="username">Username</Label>
-            <Input value={credential.username} onChange={handleCredential} type="text" id="username" placeholder="Type your username" />
-          </InputGroup>
-          <InputGroup>
-            <Label htmlFor="password">Password</Label>
-            <Input value={credential.password} onChange={handleCredential} type="password" id="password" placeholder="Type your password" />
-          </InputGroup>
-          <ForgotPassword>
-            <ForgotPasswordLink href="#">Forgot password?</ForgotPasswordLink>
-          </ForgotPassword>
-          <div >
-          <LoginButton type="submit">LOGIN</LoginButton>
-          <LoginButton type="submit">Signup</LoginButton>
-          <LoginButton type="submit">New User</LoginButton>
+    <div
+      style={{
+        height: "90vh",
+        backgroundImage:
+          'url("https://images.pexels.com/photos/326278/pexels-photo-326278.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1")',
+        backgroundSize: "cover",
+      }}
+      className="flex justify-center items-center"
+    >
+      <div className="container w-full max-w-md">
+        <form
+          onSubmit={handleSubmit}
+          className="bg-gray-100 dark:bg-gray-900 dark:text-gray-100 border-gradient rounded-lg shadow-2xl px-8 pt-6 pb-8 mb-4"
+        >
+          <div className="mb-4">
+            <label
+              htmlFor="email"
+              className="block text-gray-700  dark:text-gray-300 text-sm font-bold mb-2"
+            >
+              Username
+            </label>
+            <input
+              placeholder="Enter your email/username"
+              name="email"
+              onChange={handleChange}
+              type="email"
+              required
+              className="shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 focus:border-indigo-700 text-gray-700 dark:text-gray-100  leading-tight focus:outline-none focus:shadow-outline"
+              value={credentials.email}
+            />
           </div>
+          <div className="mb-4">
+            <label
+              htmlFor="password"
+              className="block text-gray-700  dark:text-gray-300 text-sm font-bold mb-2"
+            >
+              Password
+            </label>
+            <input
+              placeholder="*******"
+              onChange={handleChange}
+              name="password"
+              required
+              type="password"
+              className="shadow appearance-none border border-gray-300 rounded w-full py-2 px-3 focus:border-indigo-700 text-gray-700 dark:text-gray-100  leading-tight focus:outline-none focus:shadow-outline"
+              value={credentials.password}
+            />
+          </div>
+          <div className="flex items-center justify-between"></div>
+          <button
+            type="submit"
+            className="border text-gray-900 dark:text-gray-100 font-bold dark:border-gray-400 border-gray-900 rounded mr-2 p-2 hover:bg-gradient-to-r from-indigo-700 via-violet-700 to-orange-700  hover:text-gray-100"
+          >
+            Log in
+          </button>
+          <Link href={"/signup"} style={{ all: "unset" }}>
+            <button className="border text-gray-900 dark:text-gray-100 font-bold dark:border-gray-400 border-gray-900 rounded mr-2 p-2 hover:bg-gradient-to-r from-indigo-700 via-violet-700 to-orange-700  hover:text-gray-100">
+              New User?
+            </button>
+          </Link>
         </form>
-        {/* <p>Or Sign Up Using</p>
-        <SocialLogin>
-          <SocialButton className="facebook">Facebook</SocialButton>
-          <SocialButton className="twitter">Twitter</SocialButton>
-          <SocialButton className="google">Google</SocialButton>
-        </SocialLogin>
-        <p>Or Sign Up Using <SignupLink href="#">SIGN UP</SignupLink></p> */}
-      </LoginBox>
-    </LoginContainer>
+      </div>
+    </div>
   );
-};
+}
 
 export default Login;
